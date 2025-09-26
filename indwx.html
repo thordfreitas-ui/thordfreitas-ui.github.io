@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Farol Company — Dashboard</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<style>
+:root{
+  --bg:#0b0c10;
+  --card:#121318;
+  --card-2:#13141a;
+  --border:#24262e;
+  --text:#e8e9ef;
+  --muted:#a6adbb;
+  --red:#ff2f45;
+  --red-600:#ff2745;
+  --red-800:#a31928;
+  --chip:#1d1f27;
+}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1000px 600px at -5% -10%, #111218, #0b0c10 60%);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
+header{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#0f1015,#0b0c10)}
+.brand{font-weight:800;font-size:18px;letter-spacing:.3px}
+.right-mini{margin-left:auto;color:var(--muted);font-size:12px}
+.hamb{width:44px;height:44px;border-radius:10px;background:#121218;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.container-main{display:flex;gap:18px;padding:18px}
+aside.sidebar{width:340px;min-width:320px}
+.card-panel{background:linear-gradient(180deg,#13141a,#101117);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 0 0 1px rgba(255,255,255,0.02) inset}
+.big-value{font-size:34px;font-weight:900}
+.mini{color:var(--muted);font-size:13px}
+.kpi-card{display:flex;gap:14px;align-items:center;background:linear-gradient(180deg,#121318,#0f1015);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px}
+.kpi-ico{width:56px;height:56px;border-radius:14px;background:linear-gradient(180deg,var(--red),#ff4f64);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(255,47,69,.18)}
+.kpi-ico span{font-size:26px;color:#fff;filter:drop-shadow(0 1px 0 rgba(0,0,0,.35))}
+.kpi-title{font-size:14px;letter-spacing:.08em;color:#ff7a8a;font-weight:800;text-transform:uppercase}
+.kpi-value{font-size:28px;font-weight:800;color:#fff;margin-top:2px}
+.kpi-sub{font-size:14px;color:var(--muted)}
+main.board{flex:1}
+.chart-wrap{height:260px}
+.section-title{font-size:14px;color:var(--muted)}
+/* legend chips */
+.legend-chip{display:inline-flex;align-items:center;gap:6px;background:var(--chip);border:1px solid var(--border);border-radius:999px;padding:6px 10px;font-size:12px}
+.legend-dot{width:10px;height:10px;border-radius:50%}
+.dot-red{background:var(--red)}
+.dot-gray{background:#b9b2b7}
+/* Goal bar (referência do print) */
+.goal-rail{position:relative;width:100%;height:28px;background:#1a1c23;border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.goal-fill{position:absolute;inset:0;height:100%;width:0;background:linear-gradient(90deg,#ff5464,#ff2f45);box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)}
+.goal-end-cap{position:absolute;top:0;bottom:0;width:2px;right:0;background:#383a44}
+.goal-row{display:flex;align-items:center;gap:12px;justify-content:space-between;margin-top:10px}
+/* Offcanvas menu */
+.offcanvas{background:linear-gradient(180deg,#101117,#0c0d12);color:var(--text);border-left:1px solid var(--border)}
+.sidebar-link{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:#13141a;color:var(--text);text-decoration:none;margin-bottom:8px}
+.sidebar-link:hover{background:#171822}
+.sub-list{margin-top:8px;padding-left:6px}
+.sub-link{display:block;padding:8px 12px;border:1px dashed var(--border);border-radius:10px;color:var(--text);text-decoration:none;margin-bottom:6px;background:#121318}
+.sub-link:hover{background:#171822}
+</style>
+</head>
+<body>
+<header>
+  <button id="btnHamb" class="hamb" aria-label="Abrir menu">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="#eaeaf2"><path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/></svg>
+  </button>
+  <div class="brand">Farol Company — Dashboard</div>
+  <div class="right-mini">Bem-vindo, admin@farol.company</div>
+</header>
+
+<div class="container-main">
+  <!-- Lateral KPIs -->
+  <aside class="sidebar">
+    <div class="card-panel">
+      <div class="section-title">Resumo Atual</div>
+      <div class="big-value" id="vTotal">R$ 13.100,00</div>
+      <div class="mini">Mês: <b>2025-09</b></div>
+      <div class="mini mt-1">Vendas: <b>5</b></div>
+      <div class="mini">Lucro Estimado: <b id="lucroEst">—</b></div>
+      <div class="d-grid gap-2 mt-3">
+        <button class="btn btn-outline-light btn-sm">Exportar CSV</button>
+        <button class="btn btn-outline-light btn-sm">Exportar PDF</button>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-ico"><span>💵</span></div>
+      <div>
+        <div class="kpi-title">Total em Vendas</div>
+        <div class="kpi-value">R$ 13.100,00</div>
+        <div class="kpi-sub">5 vendas no período</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-ico"><span>🎯</span></div>
+      <div>
+        <div class="kpi-title">Meta Comercial</div>
+        <div class="kpi-value" id="metaVal">R$ 20.000,00</div>
+        <div class="kpi-sub">Meta mensal — Em progresso</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-ico"><span>🧾</span></div>
+      <div>
+        <div class="kpi-title">Ticket Médio</div>
+        <div class="kpi-value">R$ 2.600,00</div>
+        <div class="kpi-sub">por venda</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-ico"><span>📈</span></div>
+      <div>
+        <div class="kpi-title">ROAS</div>
+        <div class="kpi-value">2.7x</div>
+        <div class="kpi-sub">—</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-ico"><span>⚠️</span></div>
+      <div>
+        <div class="kpi-title">CAC</div>
+        <div class="kpi-value">R$ 250,00</div>
+        <div class="kpi-sub">5 clientes adquiridos</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Conteúdo principal -->
+  <main class="board">
+    <div class="card-panel">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="section-title">Resumo da Empresa — <b>Anual</b></div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="legend-chip"><span class="legend-dot dot-red"></span> Receita</span>
+          <span class="legend-chip"><span class="legend-dot" style="background:#b9b2b7"></span> Despesa</span>
+        </div>
+      </div>
+      <div class="chart-wrap mt-2"><canvas id="chartAnual"></canvas></div>
+    </div>
+
+    <div class="card-panel">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="section-title">Resumo da Empresa — <b>Mensal</b></div>
+        <div id="momPill" class="legend-chip">M/M: —</div>
+      </div>
+      <div class="chart-wrap mt-2"><canvas id="chartMensal"></canvas></div>
+
+      <!-- Barra de Meta -->
+      <div class="mt-3">
+        <div class="goal-rail">
+          <div class="goal-fill" id="goalFill" style="width:0%"></div>
+          <div class="goal-end-cap"></div>
+        </div>
+        <div class="goal-row">
+          <div class="mini">Atingimento: <b id="atingPct">—</b></div>
+          <div class="mini" id="atingResumo">—</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Offcanvas (menu hambúrguer) -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="panelMenu">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title">Navegação</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+    <a href="#" class="sidebar-link" id="linkDashboard">Dashboard<span>→</span></a>
+    <a class="sidebar-link" data-bs-toggle="collapse" href="#dropSetores" role="button" aria-expanded="false">
+      Setores <span>▾</span>
+    </a>
+    <div class="collapse" id="dropSetores">
+      <div class="sub-list">
+        <a href="#" class="sub-link">Farol Clínicas</a>
+        <a href="#" class="sub-link">Farol Imobiliária</a>
+        <a href="#" class="sub-link">Farol Lançamento</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// MENU
+const off = new bootstrap.Offcanvas(document.getElementById('panelMenu'));
+document.getElementById('btnHamb').addEventListener('click', ()=> off.toggle());
+
+// Labels para gráfico anual
+const labelsMes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+// Receita e despesa simplificadas para o exemplo anual
+const receita = [0,0,0,0,0,0,0,0,13100,0,0,0];
+const despesa = [0,0,0,0,0,0,0,0,0,0,0,0];
+
+// Labels para gráfico mensal (dias)
+const labelsDias = Array.from({length: 30}, (_, i) => (i+1).toString());
+// Vendas reais: picos nos dias 1, 2, 3 e 5
+const vendasDias = labelsDias.map((d)=>{
+  const dia = parseInt(d);
+  if(dia===1) return 2000;
+  if(dia===2) return 2100;
+  if(dia===3) return 3000;
+  if(dia===5) return 6100;
+  return 0;
+});
+
+// CHART ANUAL
+function createChartAnual(){
+  const ctx = document.getElementById('chartAnual');
+  new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:labelsMes,
+      datasets:[
+        {label:'Receita', data:receita, borderColor:getComputedStyle(document.documentElement).getPropertyValue('--red').trim(), backgroundColor:'rgba(255,47,69,.18)', fill:true, tension:.35, pointRadius:4, borderWidth:2.5},
+        {label:'Despesa', data:despesa, borderColor:'#b9b2b7', backgroundColor:'rgba(185,178,183,.12)', fill:true, tension:.35, pointRadius:0, borderWidth:2}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{color:'#cfd2da'}, grid:{display:false}},
+        y:{ticks:{color:'#cfd2da'}, grid:{color:'#1f2128'}}
+      }
+    }
+  });
+}
+
+// CHART MENSAL (linha)
+function createChartMensal(){
+  const ctx = document.getElementById('chartMensal');
+  new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:labelsDias,
+      datasets:[
+        {label:'Vendas', data:vendasDias, borderColor:getComputedStyle(document.documentElement).getPropertyValue('--red').trim(), backgroundColor:'rgba(255,47,69,.18)', fill:true, tension:.35, pointRadius:4, borderWidth:2.5}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{color:'#cfd2da'}, grid:{display:false}},
+        y:{ticks:{color:'#cfd2da'}, grid:{color:'#1f2128'}}
+      }
+    }
+  });
+
+  // M/M: último dia com vendas vs anterior
+  const lastIndex = vendasDias.map((v,i)=>v>0?i:-1).filter(i=>i>=0).pop();
+  const prevIndex = lastIndex>0 ? lastIndex-1 : null;
+  const pill = document.getElementById('momPill');
+  if(prevIndex!==null){
+    const last = vendasDias[lastIndex];
+    const prev = vendasDias[prevIndex];
+    if(prev>0){
+      const delta = ((last - prev)/prev)*100;
+      const up = delta>=0;
+      pill.textContent = `M/M: ${up?'↑':'↓'} ${Math.abs(delta).toFixed(1)}%`;
+      pill.style.border = '1px solid '+(up?'#36c690':'#ff5f6f');
+      pill.style.color = up? '#36c690' : '#ff7a8a';
+    }
+  }
+}
+
+// GOAL BAR
+function setupGoal(){
+  const total = 13100.00;
+  const meta = 20000.00;
+  const pct = Math.max(0, Math.min(100, (total/meta)*100));
+  document.getElementById('goalFill').style.width = pct.toFixed(1)+'%';
+  document.getElementById('atingPct').textContent = pct.toFixed(1)+'%';
+  document.getElementById('atingResumo').textContent = `R$ ${total.toLocaleString('pt-BR')} de R$ ${meta.toLocaleString('pt-BR')}`;
+}
+
+createChartAnual();
+createChartMensal();
+setupGoal();
+</script>
+</body>
+</html>
